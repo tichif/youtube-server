@@ -7,6 +7,7 @@ import helmet from 'helmet';
 import logger from './utils/logger';
 import { connectDB, disconnectDB } from './utils/database';
 import { CORS_ORIGIN } from './constants';
+import userRoutes from './modules/user/user.route';
 
 const app = express();
 
@@ -20,6 +21,9 @@ app.use(
   })
 );
 app.use(helmet());
+
+// routes
+app.use('/api/users', userRoutes);
 
 const PORT = process.env.PORT || 5000;
 
