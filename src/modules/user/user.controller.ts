@@ -21,3 +21,11 @@ export async function registerUserHandler(
     return res.status(StatusCodes.INTERNAL_SERVER_ERROR).send(error.message);
   }
 }
+
+export async function getCurrentUserHandler(
+  req: Request,
+  res: Response,
+  next: NextFunction
+) {
+  return res.status(StatusCodes.OK).send(res.locals.user);
+}
