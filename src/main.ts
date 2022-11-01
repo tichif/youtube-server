@@ -1,10 +1,25 @@
 import express from 'express';
 require('dotenv').config();
+import cookieParser from 'cookie-parser';
+import cors from 'cors';
+import helmet from 'helmet';
 
 import logger from './utils/logger';
 import { connectDB, disconnectDB } from './utils/database';
+import { CORS_ORIGIN } from './constants';
 
 const app = express();
+
+// middleware
+app.use(cookieParser());
+app.use(express.json());
+app.use(
+  cors({
+    origin: CORS_ORIGIN,
+    credentials: true,
+  })
+);
+app.use(helmet());
 
 const PORT = process.env.PORT || 5000;
 
