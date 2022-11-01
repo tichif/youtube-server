@@ -1,12 +1,16 @@
 import express from 'express';
 require('dotenv').config();
 
+import logger from './utils/logger';
+import { connectDB, disconnectDB } from './utils/database';
+
 const app = express();
 
 const PORT = process.env.PORT || 5000;
 
-const server = app.listen(PORT, () => {
-  console.log(`App is running on port ${PORT}`);
+const server = app.listen(PORT, async () => {
+  await connectDB();
+  logger.info(`App is running on port ${PORT}`);
 });
 
 const signals = ['SIGTERM', 'SIGINT'];
@@ -17,8 +21,9 @@ function gracefulShutdown(signal: string) {
     server.close();
 
     // disconnect from the DB
+    await disconnectDB();
 
-    console.log('My work here is done...');
+    logger.info('My work here is done...');
 
     process.exit(0);
   });
