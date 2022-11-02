@@ -5,7 +5,8 @@ import { Request, Response } from 'express';
 import { StatusCodes } from 'http-status-codes';
 
 import { Video } from './video.model';
-import { createVideo } from './video.service';
+import { createVideo, findVideo } from './video.service';
+import { UpdateVideoBody, UpdateVideoParams } from './video.schema';
 
 const MIME_TYPES = ['video/mp4'];
 
@@ -62,4 +63,32 @@ export async function uploadVideoHandler(req: Request, res: Response) {
   });
 
   return req.pipe(bb);
+}
+
+export async function updateVideoHandler(
+  req: Request<UpdateVideoParams, {}, UpdateVideoBody>,
+  res: Response
+) {
+  const { videoId } = req.params;
+
+  const { title, description, published } = req.body;
+
+  const { _id: userId } = res.locals.user;
+
+  const video = await findVideo(videoId);
+
+  if (!video) {
+    return res.status(StatusCodes.NOT_FOUND).send('Video not found');
+  }
+
+  if (video.owner?.toString() !== userId) {
+    return res.status(StatusCodes.UNAUTHORIZED).send('Unauthorized');
+  }
+
+  video.title = title;
+  video.description = description;
+  video.published = published;
+  await video.save();
+
+  return res.status(StatusCodes.OK).send(video);
 }
