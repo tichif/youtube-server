@@ -9,6 +9,7 @@ import { createVideo, findVideo, findVideos } from './video.service';
 import { UpdateVideoBody, UpdateVideoParams } from './video.schema';
 
 const MIME_TYPES = ['video/mp4'];
+const CHUNK_SIZE_IN_BYTES = 1000000; //1 MB
 
 function getPath({
   videoId,
@@ -97,4 +98,49 @@ export async function findvideosHandler(req: Request, res: Response) {
   const videos = await findVideos();
 
   return res.status(StatusCodes.OK).send(videos);
+}
+
+export async function streamVideoHandler(req: Request, res: Response) {
+  const { videoId } = req.params;
+
+  const range = req.headers.range;
+
+  if (!range) {
+    return res.status(StatusCodes.BAD_REQUEST).send('range must be provided');
+  }
+
+  const video = await findVideo(videoId);
+
+  if (!video) {
+    return res.status(StatusCodes.NOT_FOUND).send('Video not found');
+  }
+
+  const filePath = getPath({ videoId, extension: video.extension });
+
+  const fileSizeInBytes = fs.statSync(filePath).size;
+
+  const chunkStart = Number(range.replace(/\D/g, ''));
+  const chunkEnd = Math.min(
+    chunkStart + CHUNK_SIZE_IN_BYTES,
+    fileSizeInBytes - 1
+  );
+
+  const contentLength = chunkEnd - chunkStart + 1;
+
+  const headers = {
+    'Content-Range': `bytes ${chunkStart}-${chunkEnd}/${fileSizeInBytes}`,
+    'Accept-ranges': 'bytes',
+    'Content-Length': contentLength,
+    'Content-Type': `video/${video.extension}`,
+    // "Cross-Origin-resource-Policy": "cross-origin"
+  };
+
+  res.writeHead(StatusCodes.PARTIAL_CONTENT, headers);
+
+  const videoStreamn = fs.createReadStream(filePath, {
+    start: chunkStart,
+    end: chunkEnd,
+  });
+
+  videoStreamn.pipe(res);
 }
