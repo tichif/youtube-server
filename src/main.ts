@@ -9,6 +9,7 @@ import { connectDB, disconnectDB } from './utils/database';
 import { CORS_ORIGIN } from './constants';
 import userRoutes from './modules/user/user.route';
 import authRoutes from './modules/auth/auth.route';
+import videoRoutes from './modules/videos/video.route';
 import deserializeUser from './middleware/deserializeUser';
 
 const app = express();
@@ -29,6 +30,7 @@ app.use(deserializeUser);
 // routes
 app.use('/api/users', userRoutes);
 app.use('/api/auth', authRoutes);
+app.use('/api/videos', videoRoutes);
 
 const PORT = process.env.PORT || 5000;
 
