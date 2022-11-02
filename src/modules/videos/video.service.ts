@@ -7,3 +7,7 @@ export async function createVideo({ owner }: { owner: string }) {
 export async function findVideo(videoId: Video['videoId']) {
   return await VideoModel.findOne({ videoId });
 }
+
+export async function findVideos() {
+  return await VideoModel.find({ published: true }).lean();
+}

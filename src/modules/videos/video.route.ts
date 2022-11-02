@@ -2,9 +2,15 @@ import express from 'express';
 import { processRequestBody } from 'zod-express-middleware';
 
 import requireUser from '../../middleware/requireUser';
-import { updateVideoHandler, uploadVideoHandler } from './video.controller';
+import {
+  findvideosHandler,
+  updateVideoHandler,
+  uploadVideoHandler,
+} from './video.controller';
 
 const router = express.Router();
+
+router.get('/', findvideosHandler);
 
 router.post('/', requireUser, uploadVideoHandler);
 
