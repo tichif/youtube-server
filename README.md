@@ -7,6 +7,8 @@ This app is a Youtube Server built with:
 - Zod for schema validation
 - JWT for managing token
 
+[Client Side is built with Next](https://github.com/tichif/youtube-client)
+
 To build this project
 ```bash
 npm run build
